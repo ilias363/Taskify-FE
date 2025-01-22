@@ -5,9 +5,10 @@ import { SignupComponent } from "./pages/signup/signup.component";
 
 @Component({
   selector: 'app-root',
-  imports: [SignupComponent],
+  imports: [LoginComponent],
   template: `
-    <app-signup />
+    <app-login />
+    <!-- <app-signup /> -->
   `,
   styles: [],
 })
