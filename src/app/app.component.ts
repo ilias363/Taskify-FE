@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
-import { SignupComponent } from "./pages/signup/signup.component";
+import { ApiTestComponent } from './components/api-test/api-test.component';
 
 @Component({
   selector: 'app-root',
-  imports: [LoginComponent],
+  imports: [RouterModule],
   template: `
-    <app-login />
-    <!-- <app-signup /> -->
+    <router-outlet />
   `,
   styles: [],
 })

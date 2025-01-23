@@ -1,11 +1,13 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { passwordMatchValidator } from '../custom.validators';
+import { FormFieldErrorComponent } from '../../components/form-field-error/form-field-error.component';
+import { NgIf } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, NgIf, FormFieldErrorComponent, RouterLink],
   template: `
     <div class="flex items-center justify-center w-screen h-screen bg-gray-200">
       <form
@@ -23,13 +25,12 @@ import { passwordMatchValidator } from '../custom.validators';
               <label for="firstName" class="text-sm font-medium text-gray-600"
                 >First Name</label
               >
-              @if (signupForm.controls.firstName.touched &&
-              signupForm.controls.firstName.invalid &&
-              signupForm.controls.firstName.errors?.['required']){
-              <span class="text-xs font-medium mr-2 text-red-500"
-                >First name is required</span
-              >
-              }
+              <app-form-field-error
+                *ngIf="signupForm.controls.firstName.touched &&
+                signupForm.controls.firstName.invalid &&
+                signupForm.controls.firstName.errors?.['required']"
+                message="First name is required"
+              />
             </div>
             <input
               type="text"
@@ -46,13 +47,12 @@ import { passwordMatchValidator } from '../custom.validators';
               <label for="lastName" class="text-sm font-medium text-gray-600"
                 >Last Name</label
               >
-              @if (signupForm.controls.lastName.touched &&
-              signupForm.controls.lastName.invalid &&
-              signupForm.controls.lastName.errors?.['required']){
-              <small class="text-xs font-medium mr-2 text-red-500"
-                >Last name is required</small
-              >
-              }
+              <app-form-field-error
+                *ngIf="signupForm.controls.lastName.touched &&
+                signupForm.controls.lastName.invalid &&
+                signupForm.controls.lastName.errors?.['required']"
+                message="Last name is required"
+              />
             </div>
             <input
               type="text"
@@ -70,16 +70,22 @@ import { passwordMatchValidator } from '../custom.validators';
             <label for="email" class="text-sm font-medium text-gray-600"
               >Email Address</label
             >
-            @if (signupForm.controls.email.touched &&
-            signupForm.controls.email.invalid){
-            <small class="text-xs font-medium mr-2 text-red-500">
-              @if (signupForm.controls.email.errors?.['required']) {
-              <span>Email is required</span>
-              } @else if (signupForm.controls.email.errors?.['email']) {
-              <span>Invalid email format</span>
-              }
-            </small>
-            }
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.email.touched &&
+                signupForm.controls.email.invalid &&
+                signupForm.controls.email.errors?.['required']
+              "
+              message="Email is required"
+            />
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.email.touched &&
+                signupForm.controls.email.invalid &&
+                signupForm.controls.email.errors?.['email']
+              "
+              message="Invalid email format"
+            />
           </div>
           <input
             type="email"
@@ -96,16 +102,22 @@ import { passwordMatchValidator } from '../custom.validators';
             <label for="password" class="text-sm font-medium text-gray-600"
               >Password</label
             >
-            @if (signupForm.controls.password.touched &&
-            signupForm.controls.password.invalid){
-            <small class="text-xs font-medium mr-2 text-red-500">
-              @if (signupForm.controls.password.errors?.['required']) {
-              <span>Password is required</span>
-              } @else if (signupForm.controls.password.errors?.['minlength']) {
-              <span>Password must be at least 6 characters long</span>
-              }
-            </small>
-            }
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.password.touched &&
+                signupForm.controls.password.invalid &&
+                signupForm.controls.password.errors?.['required']
+              "
+              message="Password is required"
+            />
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.password.touched &&
+                signupForm.controls.password.invalid &&
+                signupForm.controls.password.errors?.['minlength']
+              "
+              message="Password must be at least 6 characters long"
+            />
           </div>
           <input
             type="password"
@@ -124,18 +136,22 @@ import { passwordMatchValidator } from '../custom.validators';
               class="text-sm font-medium text-gray-600"
               >Password Confirmation</label
             >
-            @if (signupForm.controls.passwordConfirm.touched &&
-            signupForm.controls.passwordConfirm.invalid){
-            <small class="text-xs font-medium mr-2 text-red-500">
-              @if (signupForm.controls.passwordConfirm.errors?.['required']) {
-              <span>Password confirmation is required</span>
-              } @else if
-              (signupForm.controls.passwordConfirm.errors?.['passwordMismatch'])
-              {
-              <span>Passwords do not match</span>
-              }
-            </small>
-            }
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.passwordConfirm.touched &&
+                signupForm.controls.passwordConfirm.invalid &&
+                signupForm.controls.passwordConfirm.errors?.['required']
+              "
+              message="Password confirmation is required"
+            />
+            <app-form-field-error
+              *ngIf="
+                signupForm.controls.passwordConfirm.touched &&
+                signupForm.controls.passwordConfirm.invalid &&
+                signupForm.controls.passwordConfirm.errors?.['passwordMismatch']
+              "
+              message="Passwords do not match"
+            />
           </div>
           <input
             type="password"
@@ -157,7 +173,7 @@ import { passwordMatchValidator } from '../custom.validators';
 
         <p class="text-sm text-gray-600">
           Already have an account?
-          <a href="#" class="text-purple3 hover:underline">Login</a>
+          <a routerLink="/login" class="text-purple3 hover:underline">Login</a>
         </p>
       </form>
     </div>
