@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { passwordMatchValidator } from '../custom.validators';
+import { passwordLengthValidator, passwordMatchValidator } from '../custom.validators';
 import { FormFieldErrorComponent } from '../../components/form-field-error/form-field-error.component';
 import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -188,7 +188,7 @@ export class SignupComponent {
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, passwordLengthValidator(6)]],
       passwordConfirm: ['', [Validators.required]],
     },
     { validators: passwordMatchValidator }

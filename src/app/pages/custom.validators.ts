@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 export function passwordMatchValidator(
   control: AbstractControl
@@ -14,4 +14,20 @@ export function passwordMatchValidator(
     passwordConfirm.setErrors(null);
   }
   return null;
+}
+
+export function passwordLengthValidator(minLength: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return { required: true };
+    }
+
+    const trimmedValue = control.value.trim();
+
+    if (trimmedValue.length < minLength) {
+      return { minlength: true };
+    }
+
+    return null;
+  };
 }

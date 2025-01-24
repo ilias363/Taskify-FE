@@ -6,6 +6,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { switchMap } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component';
+import { passwordLengthValidator } from '../custom.validators';
 
 @Component({
   selector: 'app-login',
@@ -86,12 +89,12 @@ import { switchMap } from 'rxjs';
         </div>
         <button
           type="submit"
-          [disabled]="loginForm.invalid"
+          [disabled]="loginForm.invalid || isLoading()"
           class="flex items-center justify-center gap-x-4 w-full py-2 bg-purple3 text-white rounded-lg font-semibold hover:bg-purple2 focus:outline-none focus:ring-2 focus:ring-purple4"
         >
-        Login
+          Login
           <div
-          *ngIf="isLoading()"
+            *ngIf="isLoading()"
             class="border-black border-opacity-50 h-6 w-6 animate-spin rounded-full border-4 border-t-white"
           ></div>
         </button>
@@ -112,11 +115,12 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
   isLoading = signal(false);
 
   loginForm = this.formBuilder.group({
-    email: ['ilias@gmail.co', [Validators.required, Validators.email]],
-    password: ['rootroot', [Validators.required, Validators.minLength(6)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, passwordLengthValidator(6)]],
   });
 
   onSubmit(e: Event) {
@@ -131,24 +135,19 @@ export class LoginComponent {
       this.authService
         .login(this.loginForm.value.email, this.loginForm.value.password)
         .subscribe({
-          next: (response: HttpResponse<any>) => {
-            console.log('Login success:', response);
-          },
           error: (error: HttpErrorResponse) => {
-            console.log('Error:', error);
-            alert(error.error.message);
             this.isLoading.set(false);
+            this.dialog.open(ErrorDialogComponent, {
+              data: { message: error.error.message, errorType: 'Login' },
+            });
           },
           complete: () => {
-            console.log('Complete');
-
+            this.isLoading.set(false);
             const returnUrl =
               this.route.snapshot.queryParams['returnUrl'] || '/';
             this.router.navigateByUrl(returnUrl);
-            this.isLoading.set(false);
           },
         });
-
     }
   }
 }

@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { of } from 'rxjs';  // To handle observable return
 import { catchError, map } from 'rxjs/operators';
 
-export const notAuthGuard: CanActivateFn = (route, state) => {
+export const notAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
   const authService = inject(AuthService);
 

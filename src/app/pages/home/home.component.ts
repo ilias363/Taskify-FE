@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -18,6 +18,20 @@ import { AuthService } from '../../services/auth.service';
 export class HomeComponent {
   authService = inject(AuthService);
   router = inject(Router);
+
+  ngOnInit() {
+    this.authService.getMyInfo().subscribe({
+      next: (response) => {
+        console.log('User info:', response);
+      },
+      error: (error) => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('User info complete');
+      },
+    });
+  }
 
   logout() {
     this.authService.logout().subscribe({
