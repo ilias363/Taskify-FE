@@ -1,9 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { passwordLengthValidator, passwordMatchValidator } from '../custom.validators';
+import {
+  passwordLengthValidator,
+  passwordMatchValidator,
+} from '../custom.validators';
 import { FormFieldErrorComponent } from '../../components/form-field-error/form-field-error.component';
 import { NgIf } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { MatDialog } from '@angular/material/dialog';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component';
 
 @Component({
   selector: 'app-signup',
@@ -12,7 +19,7 @@ import { RouterLink } from '@angular/router';
     <div class="flex items-center justify-center w-screen h-screen bg-gray-200">
       <form
         [formGroup]="signupForm"
-        (ngSubmit)="onSubmit()"
+        (ngSubmit)="onSubmit($event)"
         class="flex flex-col items-center w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <img src="logos/logo_purple.png" alt="Logo" class="w-72" />
@@ -165,10 +172,14 @@ import { RouterLink } from '@angular/router';
 
         <button
           type="submit"
-          [disabled]="signupForm.invalid"
-          class="w-full py-2 bg-purple3 text-white rounded-lg font-semibold hover:bg-purple2 focus:outline-none focus:ring-2 focus:ring-purple4"
+          [disabled]="signupForm.invalid || isLoading()"
+          class="flex items-center justify-center gap-x-4 w-full py-2 bg-purple3 text-white rounded-lg font-semibold hover:bg-purple2 focus:outline-none focus:ring-2 focus:ring-purple4"
         >
           Sign Up
+          <div
+            *ngIf="isLoading()"
+            class="border-black border-opacity-50 h-6 w-6 animate-spin rounded-full border-4 border-t-white"
+          ></div>
         </button>
 
         <p class="text-sm text-gray-600">
@@ -182,6 +193,10 @@ import { RouterLink } from '@angular/router';
 })
 export class SignupComponent {
   private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  isLoading = signal(false);
 
   signupForm = this.formBuilder.group(
     {
@@ -194,9 +209,47 @@ export class SignupComponent {
     { validators: passwordMatchValidator }
   );
 
-  onSubmit() {
-    if (this.signupForm.valid) {
-      console.log('Form Submitted:', this.signupForm.value);
+  onSubmit(e: Event) {
+    e.preventDefault();
+    if (
+      this.signupForm.valid &&
+      this.signupForm.value.firstName &&
+      this.signupForm.value.lastName &&
+      this.signupForm.value.email &&
+      this.signupForm.value.password &&
+      this.signupForm.value.passwordConfirm
+    ) {
+      this.isLoading.set(true);
+
+      try {
+        this.authService
+          .register(
+            this.signupForm.value.firstName,
+            this.signupForm.value.lastName,
+            this.signupForm.value.email,
+            this.signupForm.value.password,
+            this.signupForm.value.passwordConfirm
+          )
+          .subscribe({
+            error: (error: HttpErrorResponse) => {
+              this.isLoading.set(false);
+              this.dialog.open(ErrorDialogComponent, {
+                data: { message: error.error.message, errorType: 'Register' },
+              });
+            },
+            complete: () => {
+              this.isLoading.set(false);
+              this.router.navigateByUrl('/login');
+            },
+          });
+      } catch (error: any) {
+        this.isLoading.set(false);
+        if (error.message === 'Passwords do not match') {
+          this.dialog.open(ErrorDialogComponent, {
+            data: { message: error.message, errorType: 'Register' },
+          });
+        }
+      }
     }
   }
 }
