@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   passwordLengthValidator,
   passwordMatchValidator,
-} from '../custom.validators';
+} from '../custom.form-validators';
 import { FormFieldErrorComponent } from '../../components/form-field-error/form-field-error.component';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -16,13 +16,15 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
   selector: 'app-signup',
   imports: [ReactiveFormsModule, NgIf, FormFieldErrorComponent, RouterLink],
   template: `
-    <div class="flex items-center justify-center w-screen h-screen bg-gray-200">
+    <main
+      class="flex items-center justify-center w-screen h-screen bg-gray-200"
+    >
       <form
         [formGroup]="signupForm"
         (ngSubmit)="onSubmit($event)"
         class="flex flex-col items-center w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
-        <img src="logos/logo_purple.png" alt="Logo" class="w-72" />
+        <img src="logos/logo_purple.png" alt="Logo" class="w-80" />
 
         <h1 class="text-4xl font-extrabold text-gray-800">Sign Up</h1>
 
@@ -134,6 +136,10 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
             placeholder="Enter your password"
             class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
           />
+          <p class="text-xs text-gray-500 mt-1">
+            Note: Your password will be trimmed to remove leading and trailing
+            spaces.
+          </p>
         </div>
 
         <div class="w-full">
@@ -187,7 +193,7 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
           <a routerLink="/login" class="text-purple3 hover:underline">Login</a>
         </p>
       </form>
-    </div>
+    </main>
   `,
   styles: ``,
 })
@@ -227,8 +233,8 @@ export class SignupComponent {
             this.signupForm.value.firstName,
             this.signupForm.value.lastName,
             this.signupForm.value.email,
-            this.signupForm.value.password,
-            this.signupForm.value.passwordConfirm
+            this.signupForm.value.password.trim(),
+            this.signupForm.value.passwordConfirm.trim()
           )
           .subscribe({
             error: (error: HttpErrorResponse) => {

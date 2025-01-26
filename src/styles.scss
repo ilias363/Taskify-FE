@@ -7,13 +7,10 @@ html {
   @include mat.theme((
     color: mat.$magenta-palette,
     typography: Roboto,
-    // density: 0,
+    density: 0,
   ));
 }
 
 /* You can add global styles to this file, and also import other style files */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-html, body { height: 100%; }
+html, body { height: 100%; width: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

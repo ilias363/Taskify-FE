@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = (state) => {
 
   return authService.isLoggedIn().pipe(
     map(response => {
-      const isAuthenticated = response.body?.isLoggedIn;
+      const isAuthenticated = response.body?.data.isLoggedIn;
 
       if (!isAuthenticated) {
         router.navigate(['/login'], { queryParams: { returnUrl: state.url } });

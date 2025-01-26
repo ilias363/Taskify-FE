@@ -7,19 +7,21 @@ import { AuthService } from '../../services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component';
-import { passwordLengthValidator } from '../custom.validators';
+import { passwordLengthValidator } from '../custom.form-validators';
 
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, NgIf, FormFieldErrorComponent, RouterLink],
   template: `
-    <div class="flex items-center justify-center w-screen h-screen bg-gray-200">
+    <main
+      class="flex items-center justify-center w-screen h-screen bg-gray-200"
+    >
       <form
         [formGroup]="loginForm"
         (ngSubmit)="onSubmit($event)"
         class="flex flex-col items-center w-full max-w-md bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
-        <img src="logos/logo_purple.png" alt="Logo" class="w-72" />
+        <img src="logos/logo_purple.png" alt="Logo" class="w-80" />
 
         <h1 class="text-4xl font-extrabold text-gray-800">Login</h1>
 
@@ -85,6 +87,10 @@ import { passwordLengthValidator } from '../custom.validators';
             placeholder="Enter your password"
             class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
           />
+          <p class="text-xs text-gray-500 mt-1">
+            Note: Your password will be trimmed to remove leading and trailing
+            spaces.
+          </p>
         </div>
         <button
           type="submit"
@@ -105,7 +111,7 @@ import { passwordLengthValidator } from '../custom.validators';
           >
         </p>
       </form>
-    </div>
+    </main>
   `,
   styles: ``,
 })
@@ -132,7 +138,7 @@ export class LoginComponent {
       this.isLoading.set(true);
 
       this.authService
-        .login(this.loginForm.value.email, this.loginForm.value.password)
+        .login(this.loginForm.value.email, this.loginForm.value.password.trim())
         .subscribe({
           error: (error: HttpErrorResponse) => {
             this.isLoading.set(false);
@@ -142,9 +148,10 @@ export class LoginComponent {
           },
           complete: () => {
             this.isLoading.set(false);
-            const returnUrl =
-              this.route.snapshot.queryParams['returnUrl'] || '/';
-            this.router.navigateByUrl(returnUrl);
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || [
+              '/',
+            ];
+            this.router.navigate(returnUrl);
           },
         });
     }

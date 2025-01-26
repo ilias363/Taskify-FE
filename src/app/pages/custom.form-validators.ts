@@ -7,7 +7,7 @@ export function passwordMatchValidator(
   const passwordConfirm = control.get('passwordConfirm');
 
   if (password && passwordConfirm) {
-    if (password.value !== passwordConfirm.value) {
+    if (password.value.trim() !== passwordConfirm.value.trim()) {
       passwordConfirm.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }

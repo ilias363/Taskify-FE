@@ -1,0 +1,2 @@
+soft delete
+side bar for task filtereing based on status (contains an 'all' button and an add task button)
