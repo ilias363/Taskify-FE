@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component';
-import { passwordLengthValidator } from '../custom.form-validators';
+import { passwordLengthValidator } from '../../utils/custom.form-validators';
 
 @Component({
   selector: 'app-login',
@@ -53,7 +53,7 @@ import { passwordLengthValidator } from '../custom.form-validators';
             name="email"
             formControlName="email"
             placeholder="Enter your email"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
           />
         </div>
 
@@ -85,7 +85,7 @@ import { passwordLengthValidator } from '../custom.form-validators';
             name="password"
             formControlName="password"
             placeholder="Enter your password"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
           />
           <p class="text-xs text-gray-500 mt-1">
             Note: Your password will be trimmed to remove leading and trailing
@@ -95,18 +95,18 @@ import { passwordLengthValidator } from '../custom.form-validators';
         <button
           type="submit"
           [disabled]="loginForm.invalid || isLoading()"
-          class="flex items-center justify-center gap-x-4 w-full py-2 bg-purple3 text-white rounded-lg font-semibold hover:bg-purple2 focus:outline-none focus:ring-2 focus:ring-purple4"
+          class="flex items-center justify-center gap-x-4 w-full py-2 cursor-pointer disabled:cursor-not-allowed bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 focus:outline-hidden focus:ring-2 focus:ring-purple-400"
         >
           Login
           <div
             *ngIf="isLoading()"
-            class="border-black border-opacity-50 h-6 w-6 animate-spin rounded-full border-4 border-t-white"
+            class="border-white/50 h-6 w-6 animate-spin rounded-full border-4 border-t-black/50"
           ></div>
         </button>
 
         <p class="text-sm text-gray-600">
           Don't have an account?
-          <a routerLink="/signup" class="text-purple3 hover:underline"
+          <a routerLink="/signup" class="text-purple-600 hover:underline"
             >Sign Up</a
           >
         </p>
@@ -124,8 +124,8 @@ export class LoginComponent {
   isLoading = signal(false);
 
   loginForm = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, passwordLengthValidator(6)]],
+    email: ['user1@example.com', [Validators.required, Validators.email]],
+    password: ['password1', [Validators.required, passwordLengthValidator(6)]],
   });
 
   onSubmit(e: Event) {

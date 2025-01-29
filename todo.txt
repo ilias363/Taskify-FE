@@ -1,2 +1,15 @@
-soft delete
-side bar for task filtereing based on status (contains an 'all' button and an add task button)
+FEATURES TO ADD:
+- task speed dial implementation
+- add sorting via start date or deadline
+- profile edit form
+- add search on title
+- soft delete
+
+PROBLEMS/BUGS:
+- when changing the filter the pagination does not reset
+
+optional features
+- add keywords and tags to tasks and search by them
+- add comments to tasks
+- add option for task list view
+- add option for task calendar view

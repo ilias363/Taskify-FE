@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
@@ -10,10 +11,17 @@ import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, NgIf, MatButtonModule, MatMenuModule, MatIconModule],
+  imports: [
+    RouterLink,
+    NgIf,
+    MatButtonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatDividerModule,
+  ],
   template: `
     <header
-      class="w-full sticky top-0 left-0 z-50 p-4 flex justify-between items-center bg-purple-300 text-black shadow-lg"
+      class="w-full sticky top-0 left-0 z-50 p-2 flex justify-between items-center bg-purple-300 text-black shadow-lg"
     >
       <a routerLink="/dashboard">
         <img src="logos/logo_purple.png" alt="Logo" class="w-44" />
@@ -22,19 +30,36 @@ import { NgIf } from '@angular/common';
       <div class="relative">
         <button
           [matMenuTriggerFor]="menu"
-          class="flex items-center text-xl font-semibold hover:text-gray-700 focus:outline-none"
+          class="flex items-center justify-center cursor-pointer focus:outline-hidden"
         >
-          <span *ngIf="authUser()"
-            >{{ authUser()?.['firstName'] }}
-            {{ authUser()?.['lastName'] }}</span
+          <img
+            src="logos/profile.png"
+            alt="Logo"
+            class="w-10 rounded-full bg-contain border-3 border-purple-900"
+          />
+          <mat-icon [inline]="true" style="font-size: 34px;"
+            >arrow_drop_down</mat-icon
           >
-          <mat-icon>arrow_drop_down</mat-icon>
         </button>
-        <mat-menu #menu="matMenu" xPosition="before" class="mt-2">
+        <mat-menu #menu="matMenu" class="mt-2">
+          <ng-container *ngIf="authUser()">
+            <div class="px-4">
+              <div>
+                {{ authUser()?.['firstName'] }} {{ authUser()?.['lastName'] }}
+              </div>
+              <div class="text-sm text-gray-500">
+                {{ authUser()?.['email'] }}
+              </div>
+            </div>
+          </ng-container>
+
+          <mat-divider></mat-divider>
+
           <button mat-menu-item>
             <mat-icon>person</mat-icon>
             <span>Profile</span>
           </button>
+
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             <span>Logout</span>

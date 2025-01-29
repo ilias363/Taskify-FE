@@ -10,12 +10,16 @@ export class TasksService {
 
   constructor(private http: HttpClient) {}
 
-  getTasks(): Observable<HttpResponse<any>> {
-    return this.http.get(`${this.apiUrl}/tasks`, { observe: 'response', withCredentials: true });
+  getTasks(statusFilter: string,page: number,  size?: number): Observable<HttpResponse<any>> {
+    return this.http.get(`${this.apiUrl}/tasks?page=${page}&statusfilter=${statusFilter}` + (size ? `&size=${size}` : ''), { observe: 'response', withCredentials: true });
   }
 
-  createTask(title: string, description: string, status: string, deadline: string): Observable<HttpResponse<any>> {
-    return this.http.post(`${this.apiUrl}/tasks/create`, { title, description, status, deadline }, { observe: 'response', withCredentials: true });
+  getStats(): Observable<HttpResponse<any>> {
+    return this.http.get(`${this.apiUrl}/tasks/stats`, { observe: 'response', withCredentials: true });
+  }
+
+  createTask(title: string, description: string, status: string, startDate: string, deadline: string): Observable<HttpResponse<any>> {
+    return this.http.post(`${this.apiUrl}/tasks/create`, { title, description, status, startDate, deadline }, { observe: 'response', withCredentials: true });
   }
 
   getTask(id: number): Observable<HttpResponse<any>> {

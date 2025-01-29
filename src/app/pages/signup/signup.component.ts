@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   passwordLengthValidator,
   passwordMatchValidator,
-} from '../custom.form-validators';
+} from '../../utils/custom.form-validators';
 import { FormFieldErrorComponent } from '../../components/form-field-error/form-field-error.component';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -47,7 +47,7 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
               name="firstName"
               formControlName="firstName"
               placeholder="Enter your first name"
-              class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+              class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
             />
           </div>
 
@@ -69,7 +69,7 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
               name="lastName"
               formControlName="lastName"
               placeholder="Enter your last name"
-              class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+              class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
             />
           </div>
         </div>
@@ -102,7 +102,7 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
             name="email"
             formControlName="email"
             placeholder="Enter your email"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
           />
         </div>
 
@@ -134,7 +134,7 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
             name="password"
             formControlName="password"
             placeholder="Enter your password"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
           />
           <p class="text-xs text-gray-500 mt-1">
             Note: Your password will be trimmed to remove leading and trailing
@@ -172,25 +172,25 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
             name="passwordConfirm"
             formControlName="passwordConfirm"
             placeholder="Confirm your password"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple4 focus:outline-none"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-purple-400 focus:outline-hidden"
           />
         </div>
 
         <button
           type="submit"
           [disabled]="signupForm.invalid || isLoading()"
-          class="flex items-center justify-center gap-x-4 w-full py-2 bg-purple3 text-white rounded-lg font-semibold hover:bg-purple2 focus:outline-none focus:ring-2 focus:ring-purple4"
+          class="flex items-center justify-center gap-x-4 w-full py-2 cursor-pointer disabled:cursor-not-allowed bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 focus:outline-hidden focus:ring-2 focus:ring-purple-400"
         >
           Sign Up
           <div
             *ngIf="isLoading()"
-            class="border-black border-opacity-50 h-6 w-6 animate-spin rounded-full border-4 border-t-white"
+            class="border-white/50 h-6 w-6 animate-spin rounded-full border-4 border-t-black/50"
           ></div>
         </button>
 
         <p class="text-sm text-gray-600">
           Already have an account?
-          <a routerLink="/login" class="text-purple3 hover:underline">Login</a>
+          <a routerLink="/login" class="text-purple-600 hover:underline">Login</a>
         </p>
       </form>
     </main>

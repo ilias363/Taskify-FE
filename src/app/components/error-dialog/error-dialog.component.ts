@@ -19,13 +19,15 @@ import { NgFor } from '@angular/common';
     NgFor,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.errorType }} Error</h2>
-    <mat-dialog-content>
-      <p *ngFor="let message of data.message.split('\n')">{{ message }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onClose()">OK</button>
-    </mat-dialog-actions>
+    <div>
+      <h2 mat-dialog-title>{{ data.errorType }} Error</h2>
+      <mat-dialog-content>
+        <p *ngFor="let message of data.message.split('\n')">{{ message }}</p>
+      </mat-dialog-content>
+      <mat-dialog-actions>
+        <button mat-button (click)="onClose()">OK</button>
+      </mat-dialog-actions>
+    </div>
   `,
   styles: ``,
 })

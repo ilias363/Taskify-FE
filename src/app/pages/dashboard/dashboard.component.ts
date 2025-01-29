@@ -1,89 +1,72 @@
-import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { TasksService } from '../../services/tasks.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component';
 import { HeaderComponent } from '../../components/header/header.component';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { TasksGridComponent } from '../../components/tasks-grid/tasks-grid.component';
+import { TaskPage, TasksStats } from '../../utils/data.models';
+import { PaginatorState } from 'primeng/paginator';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NgFor, NgIf, NgClass, DatePipe, HeaderComponent, SidebarComponent],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    SidebarComponent,
+    TasksGridComponent,
+  ],
   template: `
     <div class="flex flex-col h-full">
       <app-header />
       <div class="flex flex-1 overflow-hidden">
-        <app-sidebar />
-        <main class="flex-1 overflow-y-auto p-4">
-          <h1 class="text-2xl font-bold mb-4">Task Dashboard</h1>
-          <div *ngIf="tasks().length; else noTasks">
-            <table class="w-full border-collapse border border-gray-300">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="p-2 border border-gray-300">Title</th>
-                  <th class="p-2 border border-gray-300">Description</th>
-                  <th class="p-2 border border-gray-300">Status</th>
-                  <th class="p-2 border border-gray-300">Deadline</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let task of tasks()">
-                  <td class="p-2 border border-gray-300">{{ task.title }}</td>
-                  <td class="p-2 border border-gray-300">
-                    {{ task.description }}
-                  </td>
-                  <td
-                    class="p-2 border border-gray-300 text-center"
-                    [ngClass]="{
-                      'text-yellow-500': task.status === 'TODO',
-                      'text-blue-500': task.status === 'IN_PROGRESS',
-                      'text-green-500': task.status === 'COMPLETED',
-                      'text-red-500': task.status === 'CANCELLED'
-                    }"
-                  >
-                    {{ task.status.replace('_', ' ') }}
-                  </td>
-                  <td class="p-2 border border-gray-300">
-                    {{ task.deadline | date : 'short' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <ng-template #noTasks>
-            <p class="text-gray-500 text-center">No tasks available!</p>
-          </ng-template>
-        </main>
+        <app-sidebar
+          [stats]="tasksStats"
+          (filterChange)="onFilterChange($event)"
+          (onTaskCreateSuccess)="
+            fetchTasks(currentFilter, tasksPage().currentPage)
+          "
+        />
+        <div class="flex-1 overflow-auto h-full bg-gray-100">
+          <app-tasks-grid
+            [tasksPage]="tasksPage()"
+            (onPageChange)="onPageChange($event)"
+          />
+        </div>
       </div>
     </div>
   `,
-  styles: `
-  table {
-    border-spacing: 0;
-  }
-  
-  th, td {
-    text-align: left;
-  }
-  
-  th {
-    font-weight: bold;
-  }
-  
-  td {
-    vertical-align: top;
-  }
-  `,
+  styles: ``,
 })
 export class DashboardComponent {
-  tasks = signal<any[]>([]);
   tasksService = inject(TasksService);
   dialog = inject(MatDialog);
+  currentFilter = 'all';
+  tasksPage = signal<TaskPage>({
+    currentPage: 0,
+    size: 0,
+    totalElements: 0,
+    totalPages: 0,
+    content: [],
+  });
+  tasksStats: TasksStats = {
+    all: 0,
+    todo: 0,
+    in_progress: 0,
+    completed: 0,
+    cancelled: 0,
+  };
 
-  ngOnInit(): void {
-    this.tasksService.getTasks().subscribe({
+  ngOnInit() {
+    this.fetchTasksStats();
+    this.fetchTasks('all', 0);
+  }
+
+  fetchTasks(statusFilter: string, page: number) {
+    this.tasksService.getTasks(statusFilter, page).subscribe({
       next: (response) => {
-        this.tasks.set(response.body?.data);
+        this.tasksPage.set(response.body?.data);
       },
       error: (err) => {
         this.dialog.open(ErrorDialogComponent, {
@@ -91,5 +74,29 @@ export class DashboardComponent {
         });
       },
     });
+  }
+
+  fetchTasksStats() {
+    this.tasksService.getStats().subscribe({
+      next: (response) => {
+        this.tasksStats = response.body?.data;
+      },
+      error: (err) => {
+        this.dialog.open(ErrorDialogComponent, {
+          data: { message: err.error.message, errorType: 'Get Tasks Stats' },
+        });
+      },
+    });
+  }
+
+  onFilterChange(filter: string) {
+    if (filter !== this.currentFilter) {
+      this.currentFilter = filter;
+      this.fetchTasks(filter, 0);
+    }
+  }
+
+  onPageChange(event: PaginatorState) {
+    this.fetchTasks(this.currentFilter, event.page || 0);
   }
 }
