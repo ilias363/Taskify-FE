@@ -1,4 +1,4 @@
-import { Component, inject, Input, output, signal } from '@angular/core';
+import { Component, inject, input, Input, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -13,19 +13,20 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { TasksService } from '../../services/tasks.service';
 import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validators';
+import { Task } from '../../utils/data.models';
 
 @Component({
-  selector: 'app-add-task-dialog',
+  selector: 'app-edit-task-dialog',
   imports: [Dialog, ReactiveFormsModule, NgIf, FormFieldErrorComponent],
   template: `
     <p-dialog
-      header="Create New Task"
+      header="Edit Task"
       [modal]="true"
       [(visible)]="visible"
       (onHide)="onCancel()"
     >
       <form
-        [formGroup]="newTaskForm"
+        [formGroup]="editTaskForm"
         (ngSubmit)="onSubmit($event)"
         class="flex flex-col items-center w-md space-y-6"
       >
@@ -36,17 +37,17 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
             >
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['title']?.['touched'] &&
-                newTaskForm.controls?.['title']?.['invalid'] &&
-                newTaskForm.controls?.['title']?.['errors']?.['required']
+                editTaskForm.controls?.['title']?.['touched'] &&
+                editTaskForm.controls?.['title']?.['invalid'] &&
+                editTaskForm.controls?.['title']?.['errors']?.['required']
               "
               message="Title is required"
             />
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['title']?.['touched'] &&
-                newTaskForm.controls?.['title']?.['invalid'] &&
-                newTaskForm.controls?.['title']?.['errors']?.['maxlength']
+                editTaskForm.controls?.['title']?.['touched'] &&
+                editTaskForm.controls?.['title']?.['invalid'] &&
+                editTaskForm.controls?.['title']?.['errors']?.['maxlength']
               "
               message="Title must be at most 50 characters long"
             />
@@ -67,17 +68,17 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
             >
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['description']?.['touched'] &&
-                newTaskForm.controls?.['description']?.['invalid'] &&
-                newTaskForm.controls?.['description']?.['errors']?.['required']
+                editTaskForm.controls?.['description']?.['touched'] &&
+                editTaskForm.controls?.['description']?.['invalid'] &&
+                editTaskForm.controls?.['description']?.['errors']?.['required']
               "
               message="Description is required"
             />
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['description']?.['touched'] &&
-                newTaskForm.controls?.['description']?.['invalid'] &&
-                newTaskForm.controls?.['description']?.['errors']?.['maxlength']
+                editTaskForm.controls?.['description']?.['touched'] &&
+                editTaskForm.controls?.['description']?.['invalid'] &&
+                editTaskForm.controls?.['description']?.['errors']?.['maxlength']
               "
               message="Description must be at most 1000 characters long"
             />
@@ -98,9 +99,9 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
             >
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['status']?.['touched'] &&
-                newTaskForm.controls?.['status']?.['invalid'] &&
-                newTaskForm.controls?.['status']?.['errors']?.['required']
+                editTaskForm.controls?.['status']?.['touched'] &&
+                editTaskForm.controls?.['status']?.['invalid'] &&
+                editTaskForm.controls?.['status']?.['errors']?.['required']
               "
               message="Status is required"
             />
@@ -113,6 +114,8 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
           >
             <option value="TODO">TODO</option>
             <option value="IN_PROGRESS">IN PROGRESS</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
           </select>
         </div>
 
@@ -123,9 +126,9 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
             >
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['startDate']?.['touched'] &&
-                newTaskForm.controls?.['startDate']?.['invalid'] &&
-                newTaskForm.controls?.['startDate']?.['errors']?.['required']
+                editTaskForm.controls?.['startDate']?.['touched'] &&
+                editTaskForm.controls?.['startDate']?.['invalid'] &&
+                editTaskForm.controls?.['startDate']?.['errors']?.['required']
               "
               message="Start date and time are required"
             />
@@ -146,17 +149,16 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
             >
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['deadline']?.['touched'] &&
-                newTaskForm.controls?.['deadline']?.['invalid'] &&
-                newTaskForm.controls?.['deadline']?.['errors']?.['required']
-                "
+                editTaskForm.controls?.['deadline']?.['touched'] &&
+                editTaskForm.controls?.['deadline']?.['invalid'] &&
+                editTaskForm.controls?.['deadline']?.['errors']?.['required']
+              "
               message="Deadline is required"
             />
             <app-form-field-error
               *ngIf="
-                newTaskForm.controls?.['deadline']?.['touched'] &&
-                newTaskForm.controls?.['deadline']?.['invalid'] &&
-                newTaskForm.controls?.['deadline']?.['errors']?.['deadlineAfterStartDate']
+                editTaskForm.controls?.['deadline']?.['invalid'] &&
+                editTaskForm.controls?.['deadline']?.['errors']?.['deadlineAfterStartDate']
               "
               message="Deadline must be after start date"
             />
@@ -180,10 +182,10 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
           </button>
           <button
             type="submit"
-            [disabled]="newTaskForm.invalid || isLoading()"
+            [disabled]="editTaskForm.invalid || isLoading()"
             class="flex items-center justify-center gap-x-4 w-full py-2 cursor-pointer disabled:cursor-not-allowed bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 focus:outline-hidden focus:ring-2 focus:ring-purple-400"
           >
-            Create Task
+            Update Task
             <div
               *ngIf="isLoading()"
               class="border-white/50 h-6 w-6 animate-spin rounded-full border-4 border-t-black/50"
@@ -195,10 +197,11 @@ import { deadlineAfterStartDateValidator } from '../../utils/custom.form-validat
   `,
   styles: ``,
 })
-export class AddTaskDialogComponent {
+export class EditTaskDialogComponent {
   @Input() visible!: boolean;
+  task = input.required<Task>();
   onClose = output();
-  onCreateSuccess = output();
+  onEditSuccess = output<Task>();
 
   private formBuilder = inject(FormBuilder);
   private tasksService = inject(TasksService);
@@ -206,43 +209,64 @@ export class AddTaskDialogComponent {
 
   isLoading = signal(false);
 
-  newTaskForm: FormGroup = this.formBuilder.group(
+  editTaskForm: FormGroup = this.formBuilder.group(
     {
       title: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.required, Validators.maxLength(1000)]],
-      status: ['TODO', [Validators.required]],
+      status: ['', [Validators.required]],
       startDate: ['', [Validators.required]],
       deadline: ['', [Validators.required]],
     },
     { validators: deadlineAfterStartDateValidator }
   );
 
+  ngOnInit(): void {
+    this.editTaskForm.patchValue({
+      title: this.task().title,
+      description: this.task().description,
+      status: this.task().status,
+      startDate: this.task().startDate.substring(0, 16),
+      deadline: this.task().deadline.substring(0, 16),
+    });
+  }
+
   onCancel() {
     this.visible = false;
-    this.newTaskForm.reset({ status: 'TODO' });
+    this.editTaskForm.reset({
+      title: this.task().title,
+      description: this.task().description,
+      status: this.task().status,
+      startDate: this.task().startDate.substring(0, 16),
+      deadline: this.task().deadline.substring(0, 16),
+    });
     this.onClose.emit();
   }
 
   onSubmit(e: Event) {
     e.preventDefault();
-    if (this.newTaskForm.valid) {
+    if (this.editTaskForm.valid) {
       this.isLoading.set(true);
 
-      this.tasksService.createTask(this.newTaskForm.value).subscribe({
+      const updatedTask: Task = {
+        ...this.task(),
+        ...this.editTaskForm.value,
+      };
+
+      this.tasksService.updateTask(updatedTask).subscribe({
         error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
           this.onCancel();
           this.dialog.open(ErrorDialogComponent, {
             data: {
               message: error.error.message,
-              errorType: 'Task Creation',
+              errorType: 'Task Edit',
             },
           });
         },
         complete: () => {
           this.isLoading.set(false);
           this.onCancel();
-          this.onCreateSuccess.emit();
+          this.onEditSuccess.emit(updatedTask);
         },
       });
     }

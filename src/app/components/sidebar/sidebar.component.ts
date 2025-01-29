@@ -11,7 +11,7 @@ import { TasksStats } from '../../utils/data.models';
     <aside class="w-64 h-full p-4 bg-purple-500 font-medium">
       <div class="mb-4">
         <button
-          class="flex items-center w-full px-4 py-2 bg-white text-purple-600 border border-purple-600 rounded-xl hover:bg-purple-100 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+          class="flex items-center w-full px-4 py-2 bg-white cursor-pointer text-purple-600 border border-purple-600 rounded-xl hover:bg-purple-100 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
           (click)="showDialog()"
         >
           <mat-icon class="mr-3">add</mat-icon>

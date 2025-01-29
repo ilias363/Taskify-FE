@@ -1,8 +1,7 @@
 FEATURES TO ADD:
-- task speed dial implementation
 - add sorting via start date or deadline
 - profile edit form
-- add search on title
+- add search by title, description
 - soft delete
 
 PROBLEMS/BUGS:

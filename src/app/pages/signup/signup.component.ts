@@ -159,7 +159,6 @@ import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog
             />
             <app-form-field-error
               *ngIf="
-                signupForm.controls.passwordConfirm.touched &&
                 signupForm.controls.passwordConfirm.invalid &&
                 signupForm.controls.passwordConfirm.errors?.['passwordMismatch']
               "

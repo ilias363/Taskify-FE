@@ -32,6 +32,9 @@ import { PaginatorState } from 'primeng/paginator';
           <app-tasks-grid
             [tasksPage]="tasksPage()"
             (onPageChange)="onPageChange($event)"
+            (onTaskDeleteSuccess)="
+              fetchTasks(currentFilter, tasksPage().currentPage)
+            "
           />
         </div>
       </div>

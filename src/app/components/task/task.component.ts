@@ -1,13 +1,15 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { Task } from '../../utils/data.models';
 import { CommonModule } from '@angular/common';
 import { SpeedDial } from 'primeng/speeddial';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { TasksService } from '../../services/tasks.service';
+import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.component';
 
 @Component({
   selector: 'app-task',
-  imports: [CommonModule, SpeedDial, ToastModule],
+  imports: [CommonModule, SpeedDial, ToastModule, EditTaskDialogComponent],
   providers: [MessageService],
   template: `
     <div
@@ -27,6 +29,11 @@ import { ToastModule } from 'primeng/toast';
           [style]="{ position: 'relative' }"
           [buttonProps]="{ severity: 'info', rounded: true }"
           [tooltipOptions]="{ tooltipPosition: 'left' }"
+          [buttonStyle]="{
+            'background-color': 'var(--color-purple-400)',
+            color: 'black',
+            border: 'none'
+          }"
         />
       </div>
 
@@ -56,27 +63,56 @@ import { ToastModule } from 'primeng/toast';
           {{ task().deadline | date : 'medium' }}
         </div>
       </div>
+      <app-edit-task-dialog
+        [visible]="visible"
+        [task]="task()"
+        (onClose)="visible = false"
+        (onEditSuccess)="onEditSuccess($event)"
+      />
     </div>
   `,
   styles: ``,
 })
 export class TaskComponent {
-  task = input.required<Task>();
-  filteredItems = computed(() =>
-    this.items.filter((item) => item?.['for'].includes(this.task().status))
-  );
+  taskService = inject(TasksService);
   messageService = inject(MessageService);
+
+  task = input.required<Task>();
+  onTaskDeleteSuccess = output();
+
+  visible: boolean = false;
+
   items: MenuItem[] = [
     {
       for: ['TODO', 'IN_PROGRESS'],
       label: 'Cancel Task',
       icon: 'pi pi-times',
       command: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Cancel',
-          detail: 'Data Cancelled',
-        });
+        if (!['TODO', 'IN_PROGRESS'].includes(this.task().status)) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Task should be todo or in progress to be cancelled',
+          });
+        } else {
+          this.taskService.cancelTask(this.task()).subscribe({
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Task could not be cancelled: ${error.error.message}`,
+              });
+            },
+            complete: () => {
+              this.task().status = 'CANCELLED';
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Task Cancelled',
+                detail: 'Task has been cancelled successfully',
+              });
+            },
+          });
+        }
       },
     },
     {
@@ -84,11 +120,31 @@ export class TaskComponent {
       label: 'Complete Task',
       icon: 'pi pi-check-circle',
       command: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Complete',
-          detail: 'Data Completed',
-        });
+        if (!['IN_PROGRESS'].includes(this.task().status)) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Task should be in progress to be completed',
+          });
+        } else {
+          this.taskService.completeTask(this.task()).subscribe({
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Task could not be completed: ${error.error.message}`,
+              });
+            },
+            complete: () => {
+              this.task().status = 'COMPLETED';
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Task Completed',
+                detail: 'Task has been completed successfully',
+              });
+            },
+          });
+        }
       },
     },
     {
@@ -96,11 +152,31 @@ export class TaskComponent {
       label: 'Start Task',
       icon: 'pi pi-play',
       command: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Start',
-          detail: 'Data Started',
-        });
+        if (!['TODO'].includes(this.task().status)) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Task should be todo to be started',
+          });
+        } else {
+          this.taskService.startTask(this.task()).subscribe({
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Task could not be started: ${error.error.message}`,
+              });
+            },
+            complete: () => {
+              this.task().status = 'IN_PROGRESS';
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Task Started',
+                detail: 'Task has been started successfully',
+              });
+            },
+          });
+        }
       },
     },
     {
@@ -108,10 +184,22 @@ export class TaskComponent {
       label: 'Delete Task',
       icon: 'pi pi-trash',
       command: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Delete',
-          detail: 'Data Deleted',
+        this.taskService.deleteTask(this.task().id).subscribe({
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Task could not be deleted: ${error.error.message}`,
+            });
+          },
+          complete: () => {
+            this.onTaskDeleteSuccess.emit();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Task Deleted',
+              detail: 'Task has been deleted successfully',
+            });
+          },
         });
       },
     },
@@ -120,12 +208,25 @@ export class TaskComponent {
       label: 'Edit Task',
       icon: 'pi pi-pen-to-square',
       command: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Edit',
-          detail: 'Data Edited',
-        });
+        this.visible = true;
       },
     },
   ];
+
+  filteredItems = computed(() =>
+    this.items.filter((item) => item?.['for'].includes(this.task().status))
+  );
+
+  onEditSuccess(task: Task) {
+    this.task().title = task.title;
+    this.task().description = task.description;
+    this.task().status = task.status;
+    this.task().startDate = task.startDate;
+    this.task().deadline = task.deadline;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Task Updated',
+      detail: 'Task has been updated successfully',
+    });
+  }
 }

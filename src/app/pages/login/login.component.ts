@@ -151,7 +151,11 @@ export class LoginComponent {
             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || [
               '/',
             ];
-            this.router.navigate(returnUrl);
+            try {
+              this.router.navigate(returnUrl);
+            } catch (error) {
+              this.router.navigate(['/']);
+            }
           },
         });
     }

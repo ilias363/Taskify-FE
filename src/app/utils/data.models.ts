@@ -3,8 +3,8 @@ export interface Task {
   title: string;
   description: string;
   status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  startDate: Date;
-  deadline: Date;
+  startDate: string;
+  deadline: string;
   appUser: {
     id: number;
     firstName: string;
