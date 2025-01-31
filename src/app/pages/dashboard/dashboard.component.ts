@@ -19,21 +19,23 @@ import { PaginatorState } from 'primeng/paginator';
   ],
   template: `
     <div class="flex flex-col h-full">
-      <app-header />
+      <app-header (onSearchInputEmitter)="onSearchInput($event)" />
       <div class="flex flex-1 overflow-hidden">
         <app-sidebar
           [stats]="tasksStats"
           (filterChange)="onFilterChange($event)"
           (onTaskCreateSuccess)="
-            fetchTasks(currentFilter, tasksPage().currentPage)
+            fetchTasks(currentFilter, '', tasksPage().currentPage)
           "
         />
         <div class="flex-1 overflow-auto h-full bg-gray-100">
           <app-tasks-grid
             [tasksPage]="tasksPage()"
+            [currentFilter]="currentFilter"
+            [searchQuery]="searchQuery"
             (onPageChange)="onPageChange($event)"
             (onTaskDeleteSuccess)="
-              fetchTasks(currentFilter, tasksPage().currentPage)
+              fetchTasks(currentFilter, '', tasksPage().currentPage)
             "
           />
         </div>
@@ -46,6 +48,8 @@ export class DashboardComponent {
   tasksService = inject(TasksService);
   dialog = inject(MatDialog);
   currentFilter = 'all';
+  searchQuery = '';
+
   tasksPage = signal<TaskPage>({
     currentPage: 0,
     size: 0,
@@ -53,6 +57,7 @@ export class DashboardComponent {
     totalPages: 0,
     content: [],
   });
+
   tasksStats: TasksStats = {
     all: 0,
     todo: 0,
@@ -63,14 +68,31 @@ export class DashboardComponent {
 
   ngOnInit() {
     this.fetchTasksStats();
-    this.fetchTasks('all', 0);
+    this.fetchTasks('all', '', 0);
   }
 
-  fetchTasks(statusFilter: string, page: number) {
-    this.tasksService.getTasks(statusFilter, page).subscribe({
+  onFilterChange(filter: string) {
+    if (filter !== this.currentFilter) {
+      this.currentFilter = filter;
+      this.fetchTasks(filter, this.searchQuery, 0);
+    }
+  }
+
+  onPageChange(event: PaginatorState) {
+    this.fetchTasks(this.currentFilter, this.searchQuery, event.page || 0);
+  }
+
+  onSearchInput(searchQuery: string) {
+    this.searchQuery = searchQuery;
+    this.fetchTasks(this.currentFilter, this.searchQuery, 0);
+  }
+
+  fetchTasks(statusFilter: string, searchQuery: string, page: number) {
+    this.tasksService.getTasks(statusFilter, searchQuery, page).subscribe({
       next: (response) => {
         this.tasksPage.set(response.body?.data);
       },
+
       error: (err) => {
         this.dialog.open(ErrorDialogComponent, {
           data: { message: err.error.message, errorType: 'Get Tasks' },
@@ -90,16 +112,5 @@ export class DashboardComponent {
         });
       },
     });
-  }
-
-  onFilterChange(filter: string) {
-    if (filter !== this.currentFilter) {
-      this.currentFilter = filter;
-      this.fetchTasks(filter, 0);
-    }
-  }
-
-  onPageChange(event: PaginatorState) {
-    this.fetchTasks(this.currentFilter, event.page || 0);
   }
 }

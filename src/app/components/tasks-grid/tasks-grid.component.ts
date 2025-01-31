@@ -9,7 +9,23 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
   imports: [TaskComponent, CommonModule, PaginatorModule],
   template: `
     <div class="h-full flex flex-col">
-      <div class="flex-grow grid grid-cols-3 gap-6 p-4">
+      <div
+        *ngIf="tasksPage().totalElements === 0"
+        class="flex justify-center items-center h-full"
+      >
+        <p class="text-3xl text-gray-600">
+          No
+          {{
+            currentFilter() === 'all' ? '' : currentFilter().replace('_', ' ')
+          }}
+          tasks found
+          {{ searchQuery() ? 'matching "' + searchQuery() + '"' : '' }}
+        </p>
+      </div>
+      <div
+        *ngIf="tasksPage().totalElements > 0"
+        class="flex-grow grid grid-cols-3 gap-6 p-4"
+      >
         <ng-container *ngFor="let task of tasksPage().content">
           <app-task
             [task]="task"
@@ -75,6 +91,8 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 })
 export class TasksGridComponent {
   tasksPage = input.required<TaskPage>();
+  currentFilter = input.required<string>();
+  searchQuery = input.required<string>();
   onPageChange = output<PaginatorState>();
   onTaskDeleteSuccess = output();
   paginatorFirst = 0;

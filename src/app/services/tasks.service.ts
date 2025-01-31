@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Task } from '../utils/data.models';
@@ -11,9 +11,19 @@ export class TasksService {
 
   constructor(private http: HttpClient) {}
 
-  getTasks(statusFilter: string,page: number,  size?: number): Observable<HttpResponse<any>> {
-    return this.http.get(`${this.apiUrl}/tasks?page=${page}&statusfilter=${statusFilter}` + (size ? `&size=${size}` : ''), { observe: 'response', withCredentials: true });
+  getTasks(statusFilter: string, searchQuery: string, page: number, size?: number): Observable<HttpResponse<any>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('status', statusFilter)
+      .set('search', searchQuery.trim());
+
+    if (size) {
+      params = params.set('size', size.toString());
+    }
+
+    return this.http.get(`${this.apiUrl}/tasks`, { params, observe: 'response', withCredentials: true });
   }
+
 
   getStats(): Observable<HttpResponse<any>> {
     return this.http.get(`${this.apiUrl}/tasks/stats`, { observe: 'response', withCredentials: true });

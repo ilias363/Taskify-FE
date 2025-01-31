@@ -211,7 +211,7 @@ export class AddTaskDialogComponent {
       title: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.required, Validators.maxLength(1000)]],
       status: ['TODO', [Validators.required]],
-      startDate: ['', [Validators.required]],
+      startDate: [new Date().toISOString().slice(0, 16), [Validators.required]],
       deadline: ['', [Validators.required]],
     },
     { validators: deadlineAfterStartDateValidator }
@@ -219,7 +219,10 @@ export class AddTaskDialogComponent {
 
   onCancel() {
     this.visible = false;
-    this.newTaskForm.reset({ status: 'TODO' });
+    this.newTaskForm.reset({
+      status: 'TODO',
+      startDate: new Date().toISOString().slice(0, 16),
+    });
     this.onClose.emit();
   }
 

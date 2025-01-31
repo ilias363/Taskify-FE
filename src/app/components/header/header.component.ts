@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { NgIf } from '@angular/common';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,7 @@ import { NgIf } from '@angular/common';
     MatMenuModule,
     MatIconModule,
     MatDividerModule,
+    AvatarModule,
   ],
   template: `
     <header
@@ -27,15 +29,37 @@ import { NgIf } from '@angular/common';
         <img src="logos/logo_purple.png" alt="Logo" class="w-44" />
       </a>
 
+      <div class="relative flex items-center w-lg">
+        <div
+          class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+        >
+          <mat-icon [style]="{ color: 'var(--color-gray-800)' }">search</mat-icon>
+        </div>
+        <input
+          type="text"
+          class="bg-white border border-gray-300 text-gray-800 text-md rounded-lg block w-full ps-10 p-2.5 shadow-md"
+          placeholder="Search tasks by name or description..."
+          (input)="onSearchInput($event)"
+        />
+      </div>
       <div class="relative">
+
+
         <button
           [matMenuTriggerFor]="menu"
           class="flex items-center justify-center cursor-pointer focus:outline-hidden"
         >
-          <img
-            src="logos/profile.png"
-            alt="Profile"
-            class="w-10 rounded-full bg-contain border-3 border-purple-900"
+          <p-avatar
+            [label]="authUser()?.['firstName']?.charAt(0) + authUser()?.['lastName']?.charAt(0)"
+            styleClass="mr-0"
+            size="normal"
+            [style]="{
+              'background-color': 'var(--color-gray-200)',
+              'color': 'var(--color-gray-700)',
+              'font-size': '1.5rem',
+              'font-weight': 'bold',
+              'padding': '1.4rem',
+            }"
           />
           <mat-icon [inline]="true" style="font-size: 34px;"
             >arrow_drop_down</mat-icon
@@ -55,7 +79,7 @@ import { NgIf } from '@angular/common';
 
           <mat-divider></mat-divider>
 
-          <button mat-menu-item>
+          <button mat-menu-item (click)="navigateToProfile()">
             <mat-icon>person</mat-icon>
             <span>Profile</span>
           </button>
@@ -74,7 +98,8 @@ export class HeaderComponent {
   authService = inject(AuthService);
   router = inject(Router);
   dialog = inject(MatDialog);
-  authUser = signal(null);
+  authUser = signal<any>(null);
+  onSearchInputEmitter = output<string>();
 
   ngOnInit() {
     this.authService.getAuthUserInfo().subscribe({
@@ -89,6 +114,10 @@ export class HeaderComponent {
     });
   }
 
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
+  }
+
   logout() {
     this.authService.logout().subscribe({
       error: (error) => {
@@ -101,5 +130,10 @@ export class HeaderComponent {
         this.router.navigate(['/login']);
       },
     });
+  }
+
+  onSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.onSearchInputEmitter.emit(input.value);
   }
 }
