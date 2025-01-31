@@ -124,8 +124,8 @@ export class LoginComponent {
   isLoading = signal(false);
 
   loginForm = this.formBuilder.group({
-    email: ['user1@example.com', [Validators.required, Validators.email]],
-    password: ['password1', [Validators.required, passwordLengthValidator(6)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, passwordLengthValidator(6)]],
   });
 
   onSubmit(e: Event) {

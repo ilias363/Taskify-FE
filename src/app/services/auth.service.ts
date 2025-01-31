@@ -79,4 +79,11 @@ export class AuthService {
         })
       );
   }
+
+  deleteAccount(): Observable<HttpResponse<any>> {
+    return this.http.delete(`${this.apiUrl}/users/me`, {
+      observe: 'response',
+      withCredentials: true,
+    });
+  }
 }
