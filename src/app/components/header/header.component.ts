@@ -34,7 +34,7 @@ import { NgIf } from '@angular/common';
         >
           <img
             src="logos/profile.png"
-            alt="Logo"
+            alt="Profile"
             class="w-10 rounded-full bg-contain border-3 border-purple-900"
           />
           <mat-icon [inline]="true" style="font-size: 34px;"

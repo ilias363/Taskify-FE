@@ -13,7 +13,7 @@ import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.co
   providers: [MessageService],
   template: `
     <div
-      class="flex flex-col gap-4 bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-xl transition duration-300 ease-in-out"
+      class="flex flex-col gap-4 bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-all duration-300 ease-in-out"
     >
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-bold text-gray-800">
@@ -25,15 +25,9 @@ import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.co
           [radius]="120"
           type="quarter-circle"
           direction="down-left"
-          mask
           [style]="{ position: 'relative' }"
           [buttonProps]="{ severity: 'info', rounded: true }"
           [tooltipOptions]="{ tooltipPosition: 'left' }"
-          [buttonStyle]="{
-            'background-color': 'var(--color-purple-400)',
-            color: 'black',
-            border: 'none'
-          }"
         />
       </div>
 
@@ -71,7 +65,30 @@ import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.co
       />
     </div>
   `,
-  styles: ``,
+  styles: `
+    :host ::ng-deep {
+      .p-speeddial .p-speeddial-button {
+        background-color: var(--color-purple-400);
+        color: black;
+        border: none;
+        &:hover {
+          background-color: var(--color-purple-300);
+          color: black;
+          border: none;
+        }
+      }
+
+      .p-speeddial .p-speeddial-action {
+        background-color: var(--color-gray-800);
+        color: white;
+        border: none;
+        &:hover {
+          background-color: var(--color-gray-700);
+          color: white;
+        }
+      }
+    }
+  `,
 })
 export class TaskComponent {
   taskService = inject(TasksService);

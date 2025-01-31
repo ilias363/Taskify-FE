@@ -1,6 +1,6 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, SimpleChanges } from '@angular/core';
 import { TaskComponent } from '../task/task.component';
-import { Task, TaskPage } from '../../utils/data.models';
+import { TaskPage } from '../../utils/data.models';
 import { CommonModule } from '@angular/common';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 
@@ -19,20 +19,71 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
       </div>
       <p-paginator
         (onPageChange)="onPageChange.emit($event)"
-        [first]="0"
+        [first]="paginatorFirst"
         [rows]="tasksPage().size"
         [totalRecords]="tasksPage().totalElements"
         [showFirstLastIcon]="true"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="{first} - {last} of {totalRecords}"
-        [style]="{ 'background-color': 'transparent' }"
       ></p-paginator>
     </div>
   `,
-  styles: ``,
+  styles: `
+    :host ::ng-deep {
+      .p-paginator {
+        background: transparent;
+      }
+
+      .p-paginator .p-paginator-current {
+        min-width: 100px;
+        color: black;
+        font-weight: 600;
+      }
+
+      .p-paginator .p-paginator-pages .p-paginator-page {
+        border-radius: 8px;
+        transition: none;
+        &.p-paginator-page-selected {
+          background: var(--color-purple-600);
+          color: white;
+          font-weight: 600;
+          &:hover {
+            background: var(--color-purple-700);
+          }
+        }
+        &:not(.p-paginator-page-selected) {
+          background: transparent;
+          color: black;
+          &:hover {
+            background: var(--color-gray-300);
+          }
+        }
+      }
+
+      .p-paginator .p-paginator-first,
+      .p-paginator .p-paginator-prev,
+      .p-paginator .p-paginator-next,
+      .p-paginator .p-paginator-last {
+        border-radius: 8px;
+        color: black;
+        &:hover {
+          background: var(--color-gray-300);
+        }
+      }
+    }
+  `,
 })
 export class TasksGridComponent {
   tasksPage = input.required<TaskPage>();
   onPageChange = output<PaginatorState>();
   onTaskDeleteSuccess = output();
+  paginatorFirst = 0;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('tasksPage' in changes) {
+      const currentPage = this.tasksPage().currentPage;
+      const pageSize = this.tasksPage().size;
+      this.paginatorFirst = currentPage * pageSize;
+    }
+  }
 }
